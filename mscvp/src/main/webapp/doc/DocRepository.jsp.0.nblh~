@@ -1,0 +1,433 @@
+<%-- 
+    Document   : DocRepository
+    Created on : Mar 11, 2013, 10:03:37 AM
+    Author     : Nagireddy seerapu 
+--%>
+<%-- <%@ page contentType="text/html" pageEncoding="UTF-8"%> --%>
+<%@ taglib prefix="s" uri="/struts-tags" %>
+<%-- <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> --%>
+<!DOCTYPE html>
+<%@page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+
+
+<%@page import="com.mss.ediscv.doc.DocRepositoryBean"%>
+<%@ taglib uri="/WEB-INF/tlds/dbgrid.tld" prefix="grd"%>
+<%@ page import="com.freeware.gridtag.*"%>
+<%@page import="java.sql.Connection"%>
+<%@  page import="com.mss.ediscv.util.AppConstants"%>
+<%@ page import="com.mss.ediscv.util.ConnectionProvider"%>
+<%@ page import="java.sql.SQLException"%>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Miracle Supply Chain Visibility portal</title>
+        
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+
+ <%-- <meta name="description" content="website description" />
+  <meta name="keywords" content="website keywords, website keywords" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />  --%>
+ 
+        <link rel="stylesheet" href='<s:url value="/includes/css/style.css"/>'
+			type="text/css">
+        <link rel="stylesheet" href='<s:url value="/includes/css/jquery-ui.css"/>'
+			type="text/css">
+        <link rel="stylesheet" href='<s:url value="/includes/css/dhtmlxcalendar.css"/>'
+			type="text/css">
+        <link rel="stylesheet" href='<s:url value="/includes/css/dhtmlxcalendar_omega.css"/>'
+			type="text/css">
+        
+         <link rel="stylesheet" href='<s:url value="/includes/css/footerstyle.css"/>'
+              type="text/css"/>
+         
+         <script language="JavaScript"
+        src='<s:url value="/includes/js/jquery-1.9.1.js"></s:url>'></script>
+        <script language="JavaScript"
+        src='<s:url value="/includes/js/jquery-ui.js"/>'></script>
+       <script language="JavaScript"
+        src='<s:url value="/includes/js/DBGrid.js"/>'></script>
+        <script language="JavaScript"
+        src='<s:url value="/includes/js/DateValidation.js"/>'></script>
+        <script language="JavaScript"
+        src='<s:url value="/includes/js/GridNavigation.js"/>'></script>
+        <script language="JavaScript"
+        src='<s:url value="/includes/js/dhtmlxcalendar.js"/>'></script>
+  
+        <script language="JavaScript"
+        src='<s:url value="/includes/js/GeneralAjax.js"/>'></script>
+        
+        <script language="JavaScript"
+        src='<s:url value="/includes/js/common.js"/>'></script>
+         <script language="JavaScript"
+        src='<s:url value="/includes/js/modernizr-1.5.min.js"/>'></script>
+        
+        <%--   <script language="JavaScript"
+        src='<s:url value="/includes/js/generalValidations.js"/>'></script>  --%>
+  <script>
+ /* $(function() {
+    $( "#docdatepicker" ).datepicker();
+	 $( "#docdatepickerfrom" ).datepicker();
+  });
+*/
+                var myCalendar;
+		function doOnLoad() {
+                        myCalendar = new dhtmlXCalendarObject(["docdatepickerfrom","docdatepicker"]);
+                        myCalendar.setSkin('omega');
+			myCalendar.setDateFormat("%m/%d/%Y %H:%i");
+	
+		}
+  </script>
+<script type="text/javascript"> 
+   $(function() {
+       $('#attach_box').click(function() {
+           $('#sec_box').show();
+           return false;
+       });        
+   });
+    $(function() {
+       $('#detail_link').click(function() {
+           $('#detail_box').show();
+           return false;
+       });        
+   });
+   
+      // New function to show the left grid
+
+  function demo(){ 
+    $(function() {
+       
+           $('#detail_box').show();
+           return false;          
+   });
+  
+  }
+  
+   function getDetails(val){
+   getDocDetails(val);
+ }
+ 
+  function resetvalues()
+{
+    document.getElementById('docdatepickerfrom').value="";
+    document.getElementById('docdatepicker').value="";
+    document.getElementById('docSenderId').value="";
+    document.getElementById('docSenderName').value="";
+    document.getElementById('docBusId').value="";
+    document.getElementById('docRecName').value="";
+    document.getElementById('docIsa').value="";
+    document.getElementById('docPoNum').value="";
+    //alert("reset");
+    document.getElementById('sampleValue').value="1";      
+}
+</script>
+</head>
+<%String sampleValue = request.getParameter("sampleValue");
+    %>
+<body onload="doOnLoad();initDateTime('docdatepickerfrom','docdatepicker','<%=sampleValue %>');">
+    <div id="wrapper">
+  <div id="main">
+    <header>
+      <div id="logo">
+           <s:include value="/includes/template/head.jsp"/>         
+     </div>
+      <nav>
+        <ul class="sf-menu" id="nav">
+	  <li class="current"><a href="#"><b>Document Repository</b></a></li>
+          <li ><a href="<s:url action="../po/purchaseOrder"/>">Purchase Orders</a></li>
+          <li><a href="<s:url action="../shipment/shipmentAction"/>">Shipments</a></li>
+          <li><a href="<s:url action="../inv/invoiceAction"/>">Invoices</a></li>
+          <li><a href="<s:url action="../payment/paymentAction"/>">Payments</a></li>
+          
+          <%
+            // out.println(session.getAttribute(AppConstants.SES_ROLE_ID));
+             
+             if(session.getAttribute(AppConstants.SES_ROLE_ID).equals("101")){
+          %>
+          <li><a href="<s:url action="../tp/addTP"/>">Trading Partner</a></li>
+          <%}%>
+        </ul> 
+      <%--  <s:include value="/includes/template/mainMenu.jsp"/>  --%>
+      </nav>
+    </header>
+    <div id="site_content">
+      <div id="sidebar_container">
+	  
+	  
+	  <div id="detail_box" style="display: none;"> 
+        <div class="sidebar">
+          <h3>Detail Information</h3>
+          <div class="sidebar_item">
+              
+              
+                <h5 id="detailInformation"></h5>
+                
+          </div>
+		  </div>
+		  
+		  
+          <div class="sidebar_base"></div>
+        </div>
+       
+       
+        
+      </div>
+     
+      <div class="content">
+        <div class="content_item">
+         <h3>Search Document Repository</h3>
+		<div &nbsp; style="alignment-adjust:central;" >
+                   <%String contextPath = request.getContextPath();
+                    %>
+               <table >
+		<tbody >
+		  <s:form action="../doc/documentSearch.action" method="post" name="documentForm" id="documentForm" theme="simple">
+                      
+                       <tr>
+                           <td class="lableLeft">Date From </td>
+				<td><%-- <input type="text" id="datepickerfrom" /> --%>
+                                  <%--  <input type="text" name="datepickerfrom" id="datepickerfrom" class="inputStyle" tabindex="2" /> --%>
+                                  <s:textfield cssClass="inputStyle" name="docdatepickerfrom" id="docdatepickerfrom"  value="%{docdatepickerfrom}" tabindex="1"  onkeypress="enterDate();"/>
+                                  <a href="javascript:copyValuTo('docdatepickerfrom','docdatepicker');"><img border="0" src="<%= contextPath%>/includes/images/lm/arrow.gif" width="7"
+												height="9"></a>
+				</td>
+		        <td class="lableLeft">Date To </td>
+				<td><%-- <input type="text" id="datepicker" /> --%>
+                                  <%--  <input type="text" name="datepicker" id="datepicker" class="inputStyle" tabindex="2" />  --%>
+                                  <s:textfield cssClass="inputStyle" name="docdatepicker"  value="%{docdatepicker}" id="docdatepicker" tabindex="2"  onkeypress="enterDate();"/>
+				</td>
+				
+			</tr>
+			<tr>
+				<td class="lableLeft">Sender Id</td>
+				<td><%-- <input type="text"> --%>
+                                   <%-- <input type="text" name="senderId" id="senderId" class="inputStyle" tabindex="2" /> --%>
+                                   <s:textfield cssClass="inputStyle" name="docSenderId" id="docSenderId" tabindex="3"/>
+				</td>
+                                <td class="lableLeft">Sender Name</td>
+				<td><%-- <input type="text"> --%>
+                                  <%--  <input type="text" name="senderName" id="senderName" class="inputStyle" tabindex="2" /> --%>
+                                  <s:textfield cssClass="inputStyle" name="docSenderName" id="docSenderName" tabindex="4"/>
+				</td>
+                        </tr>
+			<tr>
+				
+                                
+				 
+                                <td class="lableLeft">Receiver Id</td>
+				<td><%-- <input type="text"> --%>
+                                    <%--<input type="text" name="buId" id="buId" class="inputStyle" tabindex="2" /> --%>
+                                    <s:textfield cssClass="inputStyle" name="docBusId" id="docBusId" tabindex="5"/>
+				</td>
+				<td class="lableLeft">Receiver Name</td>
+				<td><%-- <input type="text"> --%>
+                                   <%-- <input type="text" name="recName" id="recName" class="inputStyle" tabindex="2" /> --%>
+                                   <s:textfield cssClass="inputStyle" name="docRecName" id="docRecName" tabindex="6"/>
+				</td>
+				</tr>
+                      
+                      
+                      <tr> 
+                          <td class="lableLeft">ISA #</td>
+				<td> <s:textfield cssClass="inputStyle" name="docIsa" id="docIsa" tabindex="7"/>
+				</td>
+				<td class="lableLeft">PO #</td>
+				<td> <s:textfield cssClass="inputStyle" name="docPoNum" id="docPoNum" tabindex="8"/>
+			  </td>
+		    </tr>
+		    <tr>
+				<td class="lableLeft">Doc Type</td>
+                                <td colspan="3"  class="lableLeft">
+                                    <s:checkbox name="ck850" cssClass="" id="ck850" tabindex="9"   />850&nbsp;
+                                    <s:checkbox name="ck860" cssClass="" id="ck860" tabindex="10"  />860&nbsp; 
+                                    <s:checkbox name="ck855" cssClass="" id="ck855" tabindex="11"  />855&nbsp; 
+                                    <s:checkbox name="ck856" cssClass="" id="ck856" tabindex="12"  />856&nbsp; 
+                                    <s:checkbox name="ck810" cssClass="" id="ck810" tabindex="13"  />810&nbsp; 
+                                    <s:checkbox name="ck820" cssClass="" id="ck820" tabindex="14"  />820&nbsp; 
+				</td>
+                    </tr>
+                     <tr>
+                            <td style="background-color: white;">
+                                <s:submit value="Search" cssClass="button" onclick="return compareDates(document.getElementById('docdatepickerfrom').value,document.getElementById('docdatepicker').value)" tabindex="15"/>
+                            </td>
+                            <td style="background-color: white;">
+                               <%--  <s:reset value="Reset" cssClass="button"/> --%>
+                               <strong><input type="button" value="Reset" class="button" tabindex="16" onclick="return resetvalues();"/></strong>
+                            </td>
+                            <s:hidden name="sampleValue" id="sampleValue" value="2"/>
+                        </tr>
+             </tbody>
+             
+          </s:form>
+				
+		
+	</table> 
+	 
+            </div>
+             
+		 
+		 
+        </div>
+      </div>
+	  
+	  
+	 <s:if test="#session.documentList != null"> 
+	  <%--- GRid start --%>
+          <div class="content">
+        <div class="content_item">
+          <%!String cssValue = "whiteStripe";
+            int resultsetTotal;%>
+
+            <table align="left" width="710px"
+            border="0" cellpadding="0" cellspacing="0">
+            <tr>
+            <td style="background-color: white;">
+
+            <table align="left" id="results" width="690px"
+            border="0" cellpadding="0" cellspacing="0" class="CSSTableGenerator">
+            <%
+             java.util.List list = (java.util.List) session.getAttribute(AppConstants.SES_DOC_LIST);
+             
+            if(list.size()!=0){
+             DocRepositoryBean docRepositoryBean;
+             %>
+             <tr>
+               <%-- <td >ISA #</td>
+                <td >File Format</td>
+                <td>Direction</td>
+                <td >Date</td>
+                <td>Status</td>  --%>
+               <td >PARTNER</td>
+               <td >INSTANCE_ID</td>
+               <td >DATETIME</td>
+                <td >ISA #</td>
+                <td >DOCTYPE</td>
+                <%-- <td >DOC_ORIGIN</td> --%>
+                <td >TRANS_TYPE</td>
+                <%-- <td >DIRECTION</td>  --%>
+                
+                <td >STATUS</td>
+                
+            
+            </tr>
+            <tr>
+             
+             <%
+            for (int i = 0; i < list.size(); i++) {
+            docRepositoryBean = (DocRepositoryBean) list.get(i);
+
+            if (i % 2 == 0) {
+            cssValue = "whiteStripe";
+            } else {
+            cssValue = "grayEditSelection";
+            }
+           %>
+           <td>
+                   <%
+           out.println(docRepositoryBean.getPname());
+           %>
+                 
+          </td>
+            <td><a href="javascript:getDetails(<%=docRepositoryBean.getFile_id()%>);">
+                    <%
+                    out.println(docRepositoryBean.getFile_id());
+                    %>
+                    </a>
+            </td>
+                
+          <td>
+                    <%
+            out.println(docRepositoryBean.getDate_time_rec());
+            %>
+                   
+           </td>  
+           
+            <td> <%-- <a href="javascript:getDetails(<%=docRepositoryBean.getIsa_number()%>);">  --%>
+                    <%
+                    out.println(docRepositoryBean.getIsa_number());
+                    %>
+                   <%--  </a>  --%>
+                </td>
+             
+                <td>
+                   <%
+            out.println(docRepositoryBean.getFile_type());
+            %>
+                    
+                </td>
+                
+                <td>
+                   <%
+            out.println(docRepositoryBean.getTransaction_type());
+            %>
+                    
+                </td>
+                
+          
+           
+           <td>
+                   <%
+           out.println(docRepositoryBean.getStatus());
+           %>
+                 
+          </td>
+          
+           </tr>
+            <%
+            }
+            }
+            else
+            {
+                 %>
+                 <tr><td>
+                 <%
+                // String contextPath = request.getContextPath();
+           // out.println("<img  border='0' align='top'  src='"+contextPath+"/includes/images/alert.gif'/><b> No Records Found to Display!</b>");
+                 
+                 out.println("<img  border='0' align='top'  src='"+contextPath+"/includes/images/alert.gif'/><b>No records found for the given search criteria. Please try a different search criteria!</b>");
+            }
+
+            %>
+                     </td>
+           </tr>
+            </table>
+
+            </td>
+            </tr>
+             <%
+            if(list.size()!=0){
+                %>
+            <tr >
+                <td align="right" colspan="28" style="background-color: white;">
+                    <div align="right" id="pageNavPosition">hello</div>
+             </td>
+            </tr> 
+            <% }%>
+</table>
+ </div>
+            <%-- Process butttons  start --%>
+         
+            <%-- process buttons end--%>
+<%-- Grid End --%>
+           
+          </div>
+       </s:if> 
+    
+          
+       </div> 
+        <script type="text/javascript">
+        var pager = new Pager('results', 10); 
+        pager.init(); 
+        pager.showPageNav('pager', 'pageNavPosition'); 
+        pager.showPage(1);
+    	</script>
+              <div id="footer">
+         <h2><font color="white">@ 2013 Miracle Software Systems, Inc. All rights reserved</font></h2>
+		</div>
+        </div>
+               </div> 
+             
+    </body>
+</html>
